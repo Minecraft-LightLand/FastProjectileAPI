@@ -3,7 +3,7 @@ package dev.xkmc.fastprojectileapi.spellcircle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.xkmc.fastprojectileapi.init.FastProjectileAPI;
+import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.l2serial.serialization.marker.SerialClass;
 import dev.xkmc.l2serial.serialization.marker.SerialField;
 import org.jetbrains.annotations.Nullable;

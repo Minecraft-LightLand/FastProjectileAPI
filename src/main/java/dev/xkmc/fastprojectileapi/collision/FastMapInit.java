@@ -1,6 +1,6 @@
 package dev.xkmc.fastprojectileapi.collision;
 
-import dev.xkmc.fastprojectileapi.init.FastProjectileAPI;
+import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.SectionPos;
 

@@ -2,6 +2,7 @@ package dev.xkmc.fastprojectileapi.entity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -39,19 +40,6 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 			}
 			return !entity.isAlliedTo(target);
 		}
-	}
-
-	public void lerpMotion(double pX, double pY, double pZ) {
-		setDeltaMovement(pX, pY, pZ);
-		if (xRotO == 0.0F && yRotO == 0.0F) {
-			double d0 = Math.sqrt(pX * pX + pZ * pZ);
-			setXRot((float) -(Mth.atan2(pY, d0) * Mth.RAD_TO_DEG));
-			setYRot((float) -(Mth.atan2(pX, pZ) * Mth.RAD_TO_DEG));
-			xRotO = getXRot();
-			yRotO = getYRot();
-			moveTo(getX(), getY(), getZ(), getYRot(), getXRot());
-		}
-
 	}
 
 	public Vec3 rot() {
@@ -92,6 +80,18 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public void lerpMotion(double pX, double pY, double pZ) {
+		super.lerpMotion(pX, pY, pZ);
+	}
+
+	@Override
+	public void recreateFromPacket(ClientboundAddEntityPacket pPacket) {
+		super.recreateFromPacket(pPacket);
+		xRotO = getXRot();
+		yRotO = getYRot();
 	}
 
 	@OverridingMethodsMustInvokeSuper

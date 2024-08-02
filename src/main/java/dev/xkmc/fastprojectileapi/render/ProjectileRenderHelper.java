@@ -2,7 +2,7 @@ package dev.xkmc.fastprojectileapi.render;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import dev.xkmc.fastprojectileapi.init.FastProjectileAPI;
+import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

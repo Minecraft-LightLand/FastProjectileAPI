@@ -1,6 +1,6 @@
 package dev.xkmc.fastprojectileapi.spellcircle;
 
-import dev.xkmc.fastprojectileapi.init.FastProjectileAPI;
+import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.l2core.serial.config.BaseConfig;
 import dev.xkmc.l2core.serial.config.CollectType;
 import dev.xkmc.l2core.serial.config.ConfigCollect;
