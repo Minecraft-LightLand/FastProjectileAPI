@@ -29,8 +29,10 @@ public class ProjectileHitHelper {
 			}
 		}
 		if (level instanceof ServerLevel sl) {
+			AABB box = e.getBoundingBoxForEntityHit();
+			float width = (float) (box.getXsize() + box.getZsize()) / 4f;
 			HitResult ehit = getEntityHitResult(sl, e, src, dst,
-					e.getBoundingBox().expandTowards(v), e.getBbWidth() / 2f);
+					box.expandTowards(v), width);
 			if (ehit != null) {
 				hit = ehit;
 			}
@@ -46,7 +48,7 @@ public class ProjectileHitHelper {
 		for (Entity e : EntityStorageCache.get(level).foreach(box.inflate(1 + radius), self::canHitEntity)) {
 			if (e == self) continue;
 			AABB aabb = e.getBoundingBox().inflate(radius);
-			Optional<Vec3> optional = aabb.clip(src, dst);
+			Optional<Vec3> optional = aabb.contains(src) ? Optional.of(src) : aabb.clip(src, dst);
 			if (optional.isPresent()) {
 				double d1 = src.distanceToSqr(optional.get());
 				if (d1 < d0) {

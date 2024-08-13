@@ -88,8 +88,9 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 	}
 
 	@Override
-	public void recreateFromPacket(ClientboundAddEntityPacket pPacket) {
-		super.recreateFromPacket(pPacket);
+	public void recreateFromPacket(ClientboundAddEntityPacket data) {
+		super.recreateFromPacket(data);
+		setDeltaMovement(data.getXa(), data.getYa(), data.getZa());
 		xRotO = getXRot();
 		yRotO = getYRot();
 	}
