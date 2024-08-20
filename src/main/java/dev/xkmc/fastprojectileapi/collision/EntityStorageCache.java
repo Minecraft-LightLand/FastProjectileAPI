@@ -1,7 +1,7 @@
 package dev.xkmc.fastprojectileapi.collision;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
@@ -12,28 +12,28 @@ public class EntityStorageCache {
 
 	private static EntityStorageCache CACHE = null;
 
-	public static EntityStorageCache get(ServerLevel sl) {
+	public static EntityStorageCache get(Level level) {
 		if (CACHE != null) {
-			if (CACHE.sl == sl && CACHE.time == sl.getGameTime()) {
+			if (CACHE.level == level && CACHE.time == level.getGameTime()) {
 				return CACHE;
 			}
 		}
-		CACHE = new EntityStorageCache(sl);
+		CACHE = new EntityStorageCache(level);
 		return CACHE;
 	}
 
-	private final ServerLevel sl;
+	private final Level level;
 	private final long time;
 	private final FastMap<SectionCache> map = FastMapInit.createFastMap();
 
-	public EntityStorageCache(ServerLevel sl) {
-		this.sl = sl;
-		this.time = sl.getGameTime();
+	public EntityStorageCache(Level level) {
+		this.level = level;
+		this.time = level.getGameTime();
 	}
 
 	private void checkSection(int x, int y, int z) {
 		if (map.containsKey(x, y, z)) return;
-		map.put(x, y, z, new SectionCache(sl, x, y, z));
+		map.put(x, y, z, SectionCache.of(level, x, y, z));
 	}
 
 	public Iterable<Entity> foreach(AABB aabb, Predicate<Entity> filter) {

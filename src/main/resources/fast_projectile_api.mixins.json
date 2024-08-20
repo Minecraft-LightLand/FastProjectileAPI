@@ -4,13 +4,15 @@
   "package": "dev.xkmc.fastprojectileapi.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PersistentEntitySectionManagerAccessor",
-    "ServerLevelAccessor"
+	"PersistentEntitySectionManagerAccessor",
+	"ServerLevelAccessor",
+	"TransientEntitySectionManagerAccessor"
   ],
   "client": [
+	"ClientLevelAccessor"
   ],
   "injectors": {
-    "defaultRequire": 1
+	"defaultRequire": 1
   },
   "minVersion": "0.8"
 }
