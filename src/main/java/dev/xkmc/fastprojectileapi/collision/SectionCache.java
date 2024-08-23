@@ -16,31 +16,33 @@ import java.util.List;
 
 class SectionCache {
 
-	static SectionCache of(Level level, int x, int y, int z) {
+	static SectionCache of(Level level, int x, int y, int z, ChoiceType type) {
 		if (level instanceof ServerLevel sl) {
-			return ofServer(sl, x, y, z);
+			return ofServer(sl, x, y, z, type);
 		} else {
-			return ofClient(level, x, y, z);
+			return ofClient(level, x, y, z, type);
 		}
 	}
 
-	private static SectionCache ofServer(ServerLevel sl, int x, int y, int z) {
+	private static SectionCache ofServer(ServerLevel sl, int x, int y, int z, ChoiceType type) {
 		var manager = ((ServerLevelAccessor) sl).getEntityManager();
 		var storage = ((PersistentEntitySectionManagerAccessor<Entity>) manager).getSectionStorage();
-		return new SectionCache(storage, x, y, z);
+		return new SectionCache(storage, x, y, z, type);
 	}
 
-	private static SectionCache ofClient(Level cl, int x, int y, int z) {
+	private static SectionCache ofClient(Level cl, int x, int y, int z, ChoiceType type) {
 		var manager = ((ClientLevelAccessor) cl).getEntityStorage();
 		var storage = ((TransientEntitySectionManagerAccessor<Entity>) manager).getSectionStorage();
-		return new SectionCache(storage, x, y, z);
+		return new SectionCache(storage, x, y, z, type);
 	}
 
+	private final ChoiceType type;
 	private final AABB aabb;
 	private final List<Entity> all = new ArrayList<>();
 	private final List<Entity> margin = new ArrayList<>();
 
-	SectionCache(EntitySectionStorage<Entity> storage, int x, int y, int z) {
+	SectionCache(EntitySectionStorage<Entity> storage, int x, int y, int z, ChoiceType type) {
+		this.type = type;
 		aabb = new AABB(x << 4, y << 4, z << 4,
 				(x + 1) << 4, (y + 1) << 4, (z + 1) << 4);
 		var sect = storage.getSection(SectionPos.asLong(x, y, z));
@@ -48,7 +50,7 @@ class SectionCache {
 	}
 
 	private void add(Entity e) {
-		if (!e.isPickable()) return;
+		if (!type.test(e)) return;
 		var ebox = e.getBoundingBox();
 		if (aabb.minX <= ebox.minX && ebox.maxX <= aabb.maxX &&
 				aabb.minY <= ebox.minY && ebox.maxY <= aabb.maxY &&
