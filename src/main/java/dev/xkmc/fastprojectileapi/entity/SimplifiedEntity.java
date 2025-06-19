@@ -1,6 +1,7 @@
 package dev.xkmc.fastprojectileapi.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -14,19 +15,17 @@ public abstract class SimplifiedEntity extends Entity {
 		super(pEntityType, pLevel);
 	}
 
+	public void tick() {
+		baseTick();
+	}
+
 	@Override
 	public void baseTick() {
-		this.level().getProfiler().push("entityBaseTick");
-		if (this.boardingCooldown > 0) {
-			--this.boardingCooldown;
-		}
 		this.walkDistO = this.walkDist;
 		this.xRotO = this.getXRot();
 		this.yRotO = this.getYRot();
-		handlePortal();
 		this.checkBelowWorld();
 		this.firstTick = false;
-		this.level().getProfiler().pop();
 	}
 
 	protected boolean updateInWaterStateAndDoFluidPushing() {
@@ -68,6 +67,15 @@ public abstract class SimplifiedEntity extends Entity {
 
 	public boolean mayInteract(Level pLevel, BlockPos pPos) {
 		return false;
+	}
+
+	private int typeId = -1;
+
+	public int getTypeId() {
+		if (typeId < 0) {
+			typeId = BuiltInRegistries.ENTITY_TYPE.getId(getType());
+		}
+		return typeId;
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package dev.xkmc.fastprojectileapi.collision;
 
 import dev.xkmc.fastprojectileapi.entity.BaseProjectile;
+import dev.xkmc.fastprojectileapi.entity.EntityCachingUser;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -29,41 +31,39 @@ public class ProjectileHitHelper {
 			}
 		}
 		if (level instanceof ServerLevel sl) {
-			AABB box = e.getBoundingBoxForEntityHit();
-			float width = (float) (box.getXsize() + box.getZsize()) / 4f;
-			HitResult ehit = getEntityHitResult(sl, e, src, dst,
-					box.expandTowards(v), width);
-			if (ehit != null) {
-				hit = ehit;
+			var radius = e.getBbWidth() / 2f;
+			var graze = e.grazeRange();
+			var box = e.getBoundingBox().expandTowards(v);
+			IEntityCache cache = e.getOwner() instanceof EntityCachingUser user ? user.entityCache().get(sl, user.self()) : EntityStorageCache.get(sl);
+			var list = cache.foreach(box.inflate(1 + radius + graze), e::canHitEntity);
+			double d0 = Double.MAX_VALUE;
+			Entity entity = null;
+			for (Entity x : list) {
+				if (x == e) continue;
+				var hpos = checkHit(x, e.alterHitBox(x, radius, 0), src, dst);
+				if (hpos != null) {
+					double d1 = src.distanceToSqr(hpos);
+					if (d1 < d0) {
+						entity = x;
+						d0 = d1;
+					}
+				} else if (graze > 0 && x instanceof Player pl) {
+					var gr = checkHit(x, e.alterHitBox(x, radius, graze), src, dst);
+					if (gr != null) e.doGraze(pl);
+				}
+			}
+			if (entity != null) {
+				hit = new EntityHitResult(entity);
 			}
 		}
 		return hit;
 	}
 
 	@Nullable
-	public static EntityHitResult getEntityHitResult(ServerLevel level, BaseProjectile self, Vec3 src, Vec3 dst, AABB box, float radius) {
-		double d0 = Double.MAX_VALUE;
-		Entity entity = null;
-		for (Entity e : EntityStorageCache.get(level).foreach(box.inflate(1 + radius), self::canHitEntity)) {
-			if (e == self) continue;
-			var hit = checkHit(e, radius, src, dst);
-			if (hit != null) {
-				double d1 = src.distanceToSqr(hit);
-				if (d1 < d0) {
-					entity = e;
-					d0 = d1;
-				}
-			}
-		}
-		return entity == null ? null : new EntityHitResult(entity);
-	}
-
-	@Nullable
-	public static Vec3 checkHit(Entity e, double radius, Vec3 src, Vec3 dst) {
+	public static Vec3 checkHit(Entity e, AABB base, Vec3 src, Vec3 dst) {
 		Vec3 vel = e.getDeltaMovement();
 		double speed = vel.length();
 		int n = (int) Math.min(8, Math.floor(speed / 0.5));
-		AABB base = e.getBoundingBox().inflate(radius);
 		for (int i = 0; i <= n; i++) {
 			AABB aabb = n == 0 ? base : base.move(vel.scale(1d * i / n));
 			Optional<Vec3> optional = aabb.contains(src) ? Optional.of(src) : aabb.clip(src, dst);

@@ -14,7 +14,7 @@ import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 import java.util.List;
 
-class SectionCache {
+public class SectionCache {
 
 	static SectionCache of(Level level, int x, int y, int z, ChoiceType type) {
 		if (level instanceof ServerLevel sl) {

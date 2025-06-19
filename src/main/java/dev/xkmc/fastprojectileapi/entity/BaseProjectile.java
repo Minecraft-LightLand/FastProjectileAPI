@@ -1,8 +1,10 @@
 package dev.xkmc.fastprojectileapi.entity;
 
+import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.fastprojectileapi.collision.ProjectileHitHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -34,18 +36,35 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 			onHit(hitresult);
 		}
 		if (tickCount >= lifetime()) {
-			if (!level().isClientSide()) {
-				discard();
+			if (level() instanceof ServerLevel) {
+				projectileMove();
+				terminate();
+				markErased(false);
+				return;
 			}
-		} else {
-			projectileMove();
-			if (!level().isClientSide()) {
-				var bpos = blockPosition();
-				if (!level().hasChunk(bpos.getX() >> 4, bpos.getZ() >> 4)) {
-					discard();
-				}
+			var owner = getOwner();
+			if (tickCount >= lifetime() + 10 || owner == null || !owner.isAlive()) {
+				markErased(false);
+			}
+			return;
+		}
+		projectileMove();
+		if (level() instanceof ServerLevel sl) {
+			if (!level().hasChunk(blockPosition().getX() >> 4, blockPosition().getZ() >> 4) ||
+					isAddedToLevel() && !EntityStorageHelper.isTicking(sl, this)) {
+				markErased(false);
 			}
 		}
+	}
+
+	public void checkBelowWorld() {
+		if (this.getY() < (double) (this.level().getMinBuildHeight() - 64)) {
+			markErased(false);
+		}
+	}
+
+	protected void terminate() {
+
 	}
 
 	protected void projectileMove() {
@@ -85,6 +104,11 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 	}
 
 	protected void onHitBlock(BlockHitResult pResult) {
+	}
+
+	@Override
+	public boolean isValid() {
+		return tickCount < lifetime();
 	}
 
 }

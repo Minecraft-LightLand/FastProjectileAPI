@@ -1,13 +1,12 @@
 package dev.xkmc.fastprojectileapi.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.TraceableEntity;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
@@ -16,7 +15,7 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.UUID;
 
-public abstract class SimplifiedProjectile extends SimplifiedEntity implements TraceableEntity, IEntityWithComplexSpawn {
+public abstract class SimplifiedProjectile extends SimplifiedEntity implements TraceableEntity, IEntityWithComplexSpawn, GrazingEntity {
 
 	@Nullable
 	private UUID ownerUUID;
@@ -35,11 +34,31 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 			if (entity == null || entity == target) return false;
 			if (entity.isPassenger() || target.isPassenger()) {
 				if (entity.isPassengerOfSameVehicle(target)) {
-					return false;
+					boolean hostile = false;
+					if (target instanceof LivingEntity t && entity instanceof LivingEntity owner) {
+						hostile |= t.getLastHurtMob() == owner;
+						hostile |= owner.getLastHurtByMob() == t;
+						hostile |= t instanceof Mob tm && tm.getTarget() == owner;
+						hostile |= owner instanceof Mob om && om.getTarget() == t;
+					}
+					return hostile;
 				}
 			}
 			return !entity.isAlliedTo(target);
 		}
+	}
+
+	public void lerpMotion(double pX, double pY, double pZ) {
+		setDeltaMovement(pX, pY, pZ);
+		if (xRotO == 0.0F && yRotO == 0.0F) {
+			double d0 = Math.sqrt(pX * pX + pZ * pZ);
+			setXRot((float) -(Mth.atan2(pY, d0) * Mth.RAD_TO_DEG));
+			setYRot((float) -(Mth.atan2(pX, pZ) * Mth.RAD_TO_DEG));
+			xRotO = getXRot();
+			yRotO = getYRot();
+			moveTo(getX(), getY(), getZ(), getYRot(), getXRot());
+		}
+
 	}
 
 	public Vec3 rot() {
@@ -82,19 +101,6 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 		}
 	}
 
-	@Override
-	public void lerpMotion(double pX, double pY, double pZ) {
-		super.lerpMotion(pX, pY, pZ);
-	}
-
-	@Override
-	public void recreateFromPacket(ClientboundAddEntityPacket data) {
-		super.recreateFromPacket(data);
-		setDeltaMovement(data.getXa(), data.getYa(), data.getZa());
-		xRotO = getXRot();
-		yRotO = getYRot();
-	}
-
 	@OverridingMethodsMustInvokeSuper
 	protected void addAdditionalSaveData(CompoundTag nbt) {
 		if (ownerUUID != null) {
@@ -122,18 +128,75 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
-	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
+	public void readSpawnData(RegistryFriendlyByteBuf data) {
 		xOld = xo = position().x;
 		yOld = yo = position().y;
 		zOld = zo = position().z;
-		tickCount = (int) (level().getGameTime() - additionalData.readLong());
-		int id = additionalData.readInt();
+		tickCount = (int) (level().getGameTime() - data.readLong());
+		int id = data.readInt();
 		if (id >= 0) {
 			var e = level().getEntity(id);
 			if (e != null) {
 				setOwner(e);
 			}
 		}
+	}
+
+	public abstract boolean isValid();
+
+	private boolean isErased = false;
+
+	public void markErased(boolean kill) {
+		if (isErased) return;
+		isErased = true;
+		if (isAddedToLevel()) {
+			if (kill) {
+				if (level().isClientSide()) poof();
+				else level().broadcastEntityEvent(this, EntityEvent.POOF);
+			}
+			discard();
+		} else if (getOwner() instanceof LivingEntity le) {
+			if (!level().isClientSide()) sendErasure(le, kill);
+			else if (kill) poof();
+		}
+	}
+
+	protected void sendErasure(LivingEntity le, boolean kill) {
+
+	}
+
+	public void erase(LivingEntity user) {
+		if (getOwner() == user) return;
+		markErased(true);
+	}
+
+	public void poof() {
+
+	}
+
+	@Override
+	public void setPosRaw(double x, double y, double z) {
+		if (!isAddedToLevel() && tickCount > 0) {
+			position = new Vec3(x, y, z);
+			blockPosition = BlockPos.containing(position);
+		} else {
+			super.setPosRaw(x, y, z);
+		}
+	}
+
+	@Override
+	public boolean isInvisible() {
+		return false;
+	}
+
+	@Override
+	public boolean isInvisibleTo(Player player) {
+		return true;
+	}
+
+	@Override
+	public boolean isCurrentlyGlowing() {
+		return false;
 	}
 
 }
