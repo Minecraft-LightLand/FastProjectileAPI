@@ -1,6 +1,7 @@
 package dev.xkmc.fastprojectileapi.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.fastprojectileapi.entity.SimplifiedProjectile;
 import dev.xkmc.l2serial.util.Wrappers;
 
@@ -12,7 +13,8 @@ public class ProjTypeHolder<T extends RenderableProjectileType<T, I>, I> impleme
 	protected static final List<ProjTypeHolder<?, ?>> HOLDERS = new ArrayList<>();
 	protected static final Map<RenderableProjectileType<?, ?>, ProjTypeHolder<?, ?>> MAP = new LinkedHashMap<>();
 
-	public static <T extends RenderableProjectileType<T, I>, I> ProjTypeHolder<T, I> wrap(T type) {
+
+	public static synchronized <T extends RenderableProjectileType<T, I>, I> ProjTypeHolder<T, I> wrap(T type) {
 		var ans = MAP.get(type);
 		if (ans == null) {
 			ans = new ProjTypeHolder<>(type);
@@ -22,7 +24,7 @@ public class ProjTypeHolder<T extends RenderableProjectileType<T, I>, I> impleme
 		return Wrappers.cast(ans);
 	}
 
-	public static void setup() {
+	public static synchronized void setup() {
 		HOLDERS.sort(Comparator.comparing(a -> a.type));
 		int n = HOLDERS.size();
 		for (int i = 0; i < n; i++) {

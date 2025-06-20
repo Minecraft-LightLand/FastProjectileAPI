@@ -21,7 +21,7 @@ public class ProjectileRenderHelper {
 
 	private static RenderQueue QUEUE;
 
-	public static void setup() {
+	public static synchronized void setup() {
 		ProjTypeHolder.setup();
 		QUEUE = new RenderQueue();
 	}
