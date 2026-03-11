@@ -34,6 +34,9 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 		HitResult hitresult = ProjectileHitHelper.getHitResultOnMoveVector(this, checkBlockHit());
 		if (hitresult != null) {
 			onHit(hitresult);
+			if (isRemoved()) {
+				return;
+			}
 		}
 		if (tickCount >= lifetime()) {
 			if (level() instanceof ServerLevel) {

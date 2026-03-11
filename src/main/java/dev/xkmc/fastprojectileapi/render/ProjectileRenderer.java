@@ -8,8 +8,11 @@ public interface ProjectileRenderer<T extends SimplifiedProjectile> {
 
 	Quaternionf cameraOrientation();
 
-	void render(T e, float pTick, PoseStack pose);
+	default void render(T e, float pTick, PoseStack pose) {
+	}
 
-	double fading(SimplifiedProjectile e);
+	default double fading(SimplifiedProjectile e) {
+		return 1;
+	}
 
 }

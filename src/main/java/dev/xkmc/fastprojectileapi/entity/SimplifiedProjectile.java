@@ -52,8 +52,10 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 		setDeltaMovement(pX, pY, pZ);
 		if (xRotO == 0.0F && yRotO == 0.0F) {
 			double d0 = Math.sqrt(pX * pX + pZ * pZ);
-			setXRot((float) -(Mth.atan2(pY, d0) * Mth.RAD_TO_DEG));
-			setYRot((float) -(Mth.atan2(pX, pZ) * Mth.RAD_TO_DEG));
+			if (d0 > 1e-6) {
+				setXRot((float) -(Mth.atan2(pY, d0) * Mth.RAD_TO_DEG));
+				setYRot((float) -(Mth.atan2(pX, pZ) * Mth.RAD_TO_DEG));
+			}
 			xRotO = getXRot();
 			yRotO = getYRot();
 			moveTo(getX(), getY(), getZ(), getYRot(), getXRot());
