@@ -1,7 +1,6 @@
 package dev.xkmc.fastprojectileapi.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.fastprojectileapi.entity.SimplifiedProjectile;
 import dev.xkmc.l2serial.util.Wrappers;
 
@@ -25,7 +24,7 @@ public class ProjTypeHolder<T extends RenderableProjectileType<T, I>, I> impleme
 	}
 
 	public static synchronized void setup() {
-		HOLDERS.sort(Comparator.comparing(a -> a.type));
+		HOLDERS.sort(Comparator.comparing(a -> a.type.order()));
 		int n = HOLDERS.size();
 		for (int i = 0; i < n; i++) {
 			HOLDERS.get(i).index = i;
