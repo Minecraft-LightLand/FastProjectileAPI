@@ -17,9 +17,8 @@ public interface RenderableProjectileType<T extends RenderableProjectileType<T, 
 	@Override
 	default int compareTo(@NotNull RenderableProjectileType<?, ?> o) {
 		if (this == o) return 0;
-		int order = order() - o.order();
-		if (order != 0) return order;
-		return hashCode() - o.hashCode();
+		int c = Integer.compare(order(), o.order());
+		return c != 0 ? c : Integer.compare(hashCode(), o.hashCode());
 	}
 
 	default int order() {
