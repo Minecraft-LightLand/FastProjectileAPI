@@ -2,20 +2,20 @@ package dev.xkmc.fastprojectileapi.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.UUID;
 
-public abstract class SimplifiedProjectile extends SimplifiedEntity implements TraceableEntity, IEntityWithComplexSpawn, GrazingEntity {
+public abstract class SimplifiedProjectile extends SimplifiedEntity implements TraceableEntity, IEntityAdditionalSpawnData, GrazingEntity {
 
 	@Nullable
 	private UUID ownerUUID;
@@ -122,7 +122,7 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
-	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+	public void writeSpawnData(FriendlyByteBuf buffer) {
 		buffer.writeLong(level().getGameTime() - tickCount);
 		var owner = getOwner();
 		buffer.writeInt(owner == null ? -1 : owner.getId());
@@ -130,7 +130,7 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
-	public void readSpawnData(RegistryFriendlyByteBuf data) {
+	public void readSpawnData(FriendlyByteBuf data) {
 		xOld = xo = position().x;
 		yOld = yo = position().y;
 		zOld = zo = position().z;
@@ -151,7 +151,7 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 	public void markErased(boolean kill) {
 		if (isErased) return;
 		isErased = true;
-		if (isAddedToLevel()) {
+		if (isAddedToWorld()) {
 			if (kill) {
 				if (level().isClientSide()) poof();
 				else level().broadcastEntityEvent(this, EntityEvent.POOF);
@@ -178,7 +178,7 @@ public abstract class SimplifiedProjectile extends SimplifiedEntity implements T
 
 	@Override
 	public void setPosRaw(double x, double y, double z) {
-		if (!isAddedToLevel() && tickCount > 0) {
+		if (!isAddedToWorld() && tickCount > 0) {
 			position = new Vec3(x, y, z);
 			blockPosition = BlockPos.containing(position);
 		} else {

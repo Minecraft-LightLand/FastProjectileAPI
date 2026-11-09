@@ -4,17 +4,17 @@ import dev.xkmc.fastprojectileapi.FastProjectileAPI;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = FastProjectileAPI.MODID, bus = EventBusSubscriber.Bus.GAME)
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = FastProjectileAPI.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ProjectileRenderHelper {
 
 	public static final List<ClientObjectCache.Provider> LIST = new ArrayList<>();
@@ -35,9 +35,9 @@ public class ProjectileRenderHelper {
 	}
 
 	@SubscribeEvent
-	public static void clientTick(LevelTickEvent.Post event) {
+	public static void clientTick(TickEvent.LevelTickEvent event) {
 		var level = Minecraft.getInstance().level;
-		if (level != event.getLevel()) return;
+		if (level != event.level || event.phase == TickEvent.Phase.START) return;
 		for (var e : LIST) {
 			e.get(level).tick();
 		}

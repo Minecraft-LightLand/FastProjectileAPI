@@ -4,8 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.xkmc.fastprojectileapi.FastProjectileAPI;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -21,10 +20,10 @@ public class SpellComponent {
 		return FastProjectileAPI.SPELL.getMerged().map.get(s);
 	}
 
-	@SerialField
+	@SerialClass.SerialField
 	public ArrayList<Stroke> strokes = new ArrayList<>();
 
-	@SerialField
+	@SerialClass.SerialField
 	public ArrayList<Layer> layers = new ArrayList<>();
 
 	public void render(Supplier<RenderHandle> handle) {
@@ -41,7 +40,7 @@ public class SpellComponent {
 	@SerialClass
 	public static class Value {
 
-		@SerialField
+		@SerialClass.SerialField
 		public float value, delta, amplitude, period, dt;
 
 		public float get(float tick) {
@@ -55,13 +54,13 @@ public class SpellComponent {
 	@SerialClass
 	public static class Stroke {
 
-		@SerialField
+		@SerialClass.SerialField
 		public int vertex, cycle = 1, rune = 0;
 
-		@SerialField
+		@SerialClass.SerialField
 		public String color;
 
-		@SerialField
+		@SerialClass.SerialField
 		public float width, radius, z, angle;
 
 		public void render(Supplier<RenderHandle> handle) {
@@ -91,13 +90,13 @@ public class SpellComponent {
 	@SerialClass
 	public static class Layer {
 
-		@SerialField
+		@SerialClass.SerialField
 		public ArrayList<String> children = new ArrayList<>();
 
 		private List<SpellComponent> _children;
 
 		@Nullable
-		@SerialField
+		@SerialClass.SerialField
 		public Value z_offset, scale, radius, rotation, alpha;
 
 		public void render(Supplier<RenderHandle> sup) {
@@ -164,14 +163,14 @@ public class SpellComponent {
 
 		private void vertex(float a, float r, float z, int col, float u, float v) {
 			int alp = (int) ((col >> 24 & 0xff) * alpha);
-			builder.addVertex(matrix.last().pose(),
+			builder.vertex(matrix.last().pose(),
 					r * (float) Math.cos(a),
 					r * (float) Math.sin(a),
-					z).setUv(u, v).setColor(
+					z).uv(u, v).color(
 					col >> 16 & 0xff,
 					col >> 8 & 0xff,
 					col & 0xff,
-					alp);
+					alp).endVertex();
 		}
 
 	}

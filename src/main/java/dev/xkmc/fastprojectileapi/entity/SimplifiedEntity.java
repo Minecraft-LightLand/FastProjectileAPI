@@ -1,13 +1,20 @@
 package dev.xkmc.fastprojectileapi.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class SimplifiedEntity extends Entity {
 
@@ -49,12 +56,21 @@ public abstract class SimplifiedEntity extends Entity {
 	}
 
 	@Override
+	public void setSecondsOnFire(int pSeconds) {
+	}
+
+	@Override
 	public int getRemainingFireTicks() {
 		return 0;
 	}
 
 	@Override
 	public void setRemainingFireTicks(int pRemainingFireTicks) {
+	}
+
+	@Override
+	public boolean ignoreExplosion() {
+		return true;
 	}
 
 	@Override
@@ -65,8 +81,17 @@ public abstract class SimplifiedEntity extends Entity {
 		return PushReaction.IGNORE;
 	}
 
+	public final Packet<ClientGamePacketListener> getAddEntityPacket() {
+		return NetworkHooks.getEntitySpawningPacket(this);
+	}
+
 	public boolean mayInteract(Level pLevel, BlockPos pPos) {
 		return false;
+	}
+
+	@Override
+	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+		return LazyOptional.empty();
 	}
 
 	private int typeId = -1;
@@ -76,26 +101,6 @@ public abstract class SimplifiedEntity extends Entity {
 			typeId = BuiltInRegistries.ENTITY_TYPE.getId(getType());
 		}
 		return typeId;
-	}
-
-	@Override
-	public void igniteForTicks(int pTicks) {
-	}
-
-	@Override
-	public void extinguishFire() {
-	}
-
-	@Override
-	public void push(Entity pEntity) {
-	}
-
-	@Override
-	public void push(Vec3 p_347665_) {
-	}
-
-	@Override
-	public void push(double pX, double pY, double pZ) {
 	}
 
 	@Override

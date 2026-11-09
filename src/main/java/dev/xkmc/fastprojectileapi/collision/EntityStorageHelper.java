@@ -24,7 +24,7 @@ public class EntityStorageHelper {
 	public static void fastAdd(ServerLevel sl, Entity e) {
 		var manager = ((ServerLevelAccessor) sl).getEntityManager();
 		manager.addNewEntityWithoutEvent(e);
-		e.onAddedToLevel();
+		e.onAddedToWorld();
 	}
 
 	public static void clear(ServerLevel sl, Entity e) {

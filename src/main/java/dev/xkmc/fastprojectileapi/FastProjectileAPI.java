@@ -2,10 +2,10 @@ package dev.xkmc.fastprojectileapi;
 
 import dev.xkmc.fastprojectileapi.collision.FastMapInit;
 import dev.xkmc.fastprojectileapi.spellcircle.SpellCircleConfig;
-import dev.xkmc.l2core.serial.config.ConfigTypeEntry;
-import dev.xkmc.l2core.serial.config.PacketHandlerWithConfig;
+import dev.xkmc.l2library.serial.config.ConfigTypeEntry;
+import dev.xkmc.l2library.serial.config.PacketHandlerWithConfig;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +16,7 @@ public class FastProjectileAPI {
 
 	public static final String MODID = "fast_projectile_api";
 	public static final Logger LOGGER = LogManager.getLogger();
-	public static final PacketHandlerWithConfig HANDLER = new PacketHandlerWithConfig(MODID, 1);
+	public static final PacketHandlerWithConfig HANDLER = new PacketHandlerWithConfig(new ResourceLocation(MODID, "main"), 1);
 
 	public static final ConfigTypeEntry<SpellCircleConfig> SPELL =
 			new ConfigTypeEntry<>(HANDLER, "spell", SpellCircleConfig.class);
@@ -26,7 +26,7 @@ public class FastProjectileAPI {
 	}
 
 	public static ResourceLocation loc(String id) {
-		return ResourceLocation.fromNamespaceAndPath(MODID, id);
+		return new ResourceLocation(MODID, id);
 	}
 
 }

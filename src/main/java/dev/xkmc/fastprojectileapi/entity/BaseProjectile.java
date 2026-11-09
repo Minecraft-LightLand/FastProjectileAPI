@@ -3,10 +3,13 @@ package dev.xkmc.fastprojectileapi.entity;
 import dev.xkmc.fastprojectileapi.collision.EntityStorageHelper;
 import dev.xkmc.fastprojectileapi.collision.ProjectileHitHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.*;
 
@@ -17,7 +20,7 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+	protected void defineSynchedData() {
 
 	}
 
@@ -54,7 +57,7 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 		projectileMove();
 		if (level() instanceof ServerLevel sl) {
 			if (!level().hasChunk(blockPosition().getX() >> 4, blockPosition().getZ() >> 4) ||
-					isAddedToLevel() && !EntityStorageHelper.isTicking(sl, this)) {
+					isAddedToWorld() && !EntityStorageHelper.isTicking(sl, this)) {
 				markErased(false);
 			}
 		}
@@ -98,6 +101,17 @@ public abstract class BaseProjectile extends SimplifiedProjectile {
 			level().gameEvent(GameEvent.PROJECTILE_LAND, hitresult.getLocation(), GameEvent.Context.of(this, null));
 		} else if (hitresult instanceof BlockHitResult bhit) {
 			BlockPos pos = bhit.getBlockPos();
+			BlockState state = level().getBlockState(pos);
+			if (state.is(Blocks.NETHER_PORTAL)) {
+				handleInsidePortal(pos);
+				return;
+			} else if (state.is(Blocks.END_GATEWAY)) {
+				BlockEntity be = level().getBlockEntity(pos);
+				if (be instanceof TheEndGatewayBlockEntity gate && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
+					TheEndGatewayBlockEntity.teleportEntity(level(), pos, state, this, gate);
+				}
+				return;
+			}
 			onHitBlock(bhit);
 			level().gameEvent(GameEvent.PROJECTILE_LAND, pos, GameEvent.Context.of(this, level().getBlockState(pos)));
 		}

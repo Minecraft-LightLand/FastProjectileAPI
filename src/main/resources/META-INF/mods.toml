@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="LGPL-2.1"
+[[mods]]
+modId="fast_projectile_api"
+version="${file.jarVersion}"
+displayName="Fast Projectile API"
+authors="lcy0x1"
+description='''
+Efficient collision and rendering
+'''
+[[mixins]]
+config="fast_projectile_api.mixins.json"
+[[dependencies.fast_projectile_api]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.fast_projectile_api]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.fast_projectile_api]]
+    modId="l2library"
+    mandatory=true
+    versionRange="[2.5.5,)"
+    ordering="AFTER"
+    side="BOTH"

@@ -1,11 +1,10 @@
 package dev.xkmc.fastprojectileapi.spellcircle;
 
 import dev.xkmc.fastprojectileapi.FastProjectileAPI;
-import dev.xkmc.l2core.serial.config.BaseConfig;
-import dev.xkmc.l2core.serial.config.CollectType;
-import dev.xkmc.l2core.serial.config.ConfigCollect;
-import dev.xkmc.l2serial.serialization.marker.SerialClass;
-import dev.xkmc.l2serial.serialization.marker.SerialField;
+import dev.xkmc.l2library.serial.config.BaseConfig;
+import dev.xkmc.l2library.serial.config.CollectType;
+import dev.xkmc.l2library.serial.config.ConfigCollect;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public class SpellCircleConfig extends BaseConfig {
 	}
 
 	@ConfigCollect(CollectType.MAP_OVERWRITE)
-	@SerialField
+	@SerialClass.SerialField
 	public HashMap<String, SpellComponent> map = new HashMap<>();
 
 }

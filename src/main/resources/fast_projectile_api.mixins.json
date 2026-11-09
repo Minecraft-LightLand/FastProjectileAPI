@@ -2,17 +2,18 @@
   "required": true,
   "priority": 1000,
   "package": "dev.xkmc.fastprojectileapi.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "fast_projectile_api.refmap.json",
   "mixins": [
-	"PersistentEntitySectionManagerAccessor",
-	"ServerLevelAccessor",
-	"TransientEntitySectionManagerAccessor"
+    "PersistentEntitySectionManagerAccessor",
+    "ServerLevelAccessor",
+    "TransientEntitySectionManagerAccessor"
   ],
   "client": [
-	"ClientLevelAccessor"
+    "ClientLevelAccessor"
   ],
   "injectors": {
-	"defaultRequire": 1
+    "defaultRequire": 1
   },
   "minVersion": "0.8"
 }
